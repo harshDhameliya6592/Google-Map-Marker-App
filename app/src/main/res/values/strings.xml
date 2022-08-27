@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">GoogleMapMarkerApp</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="google_maps_key" templateMergerStrategy = "preserve" translatable="false">AIzaSyDqxjK-8RC3D316zSgdDLWHdNZevj4dYSY</string>
+</resources>
