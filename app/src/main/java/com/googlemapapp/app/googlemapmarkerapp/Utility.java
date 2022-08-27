@@ -13,6 +13,7 @@ public class Utility {
         if (BuildConfig.DEBUG)
             if (value != null) {
                 Log.e(key, value);
+
             } else {
                 Log.e(key, "NULL VALUE");
             }
