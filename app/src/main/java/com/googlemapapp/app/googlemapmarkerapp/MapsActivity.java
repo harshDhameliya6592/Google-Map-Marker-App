@@ -1,5 +1,6 @@
 package com.googlemapapp.app.googlemapmarkerapp;
 
+import static com.googlemapapp.app.googlemapmarkerapp.Utility.PrintLog;
 import static com.googlemapapp.app.googlemapmarkerapp.Utility.decodePoly;
 
 import androidx.annotation.NonNull;
@@ -145,7 +146,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setOnMapLongClickListener(this);
         mMap.setOnMarkerDragListener(this);
@@ -248,7 +249,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     apiException.startResolutionForResult(MapsActivity.this, 1000);
                 } catch (IntentSender.SendIntentException ex) {
                     ex.printStackTrace();
-                    Utility.PrintLog("Error in checkSettingAndStartLocationUpdate", ex.getMessage());
+                    PrintLog("Error in checkSettingAndStartLocationUpdate", ex.getMessage());
                 }
             }
         });
@@ -273,7 +274,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Log.e("Susss", "SSS");
                         apiLatLngList = new ArrayList<>();
                         List<Route> routes = result.getRoutes();
-                        Utility.PrintLog("RouteSize", "" + routes.size());
+                        PrintLog("RouteSize", "" + routes.size());
                         for (Route route : routes) {
                             String polyline = route.getOverview_polyline().getPoints();
                             apiLatLngList.addAll(decodePoly(polyline));
@@ -295,7 +296,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void startLocationUpdate() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Utility.PrintLog("Error in startLocationUpdate ", "and checkSelfPermission");
+            PrintLog("Error in startLocationUpdate ", "and checkSelfPermission");
             return;
         }
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
@@ -303,13 +304,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void setUserLocationMarker(Location location) {
         Log.e("setUserLocationMarker", "setUserLocationMarker start");
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        latLngArrayList.add(latLng);
+        LatLng latLng = Utility.getNewLatLng(new LatLng(location.getLatitude(),location.getLongitude())) ;
+        if (latLng != null ){
+            latLngArrayList.add(latLng);
+        }else {
+            latLngArrayList.add(new LatLng(location.getLatitude(),location.getLongitude()));
+        }
+
+
 
         if (userLocationMarker == null) {
             //Create a new marker
             MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(latLng);
+            markerOptions.position(Objects.requireNonNull(latLng));
             if (location.getBearing() >= 260.0F) {
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.b2));
                 markerOptions.rotation(90F);
@@ -323,7 +330,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,17));
         } else {
             //use the previously created marker
-            userLocationMarker.setPosition(latLng);
+            userLocationMarker.setPosition(Objects.requireNonNull(latLng));
             if (location.getBearing() >= 260.0F) {
                 userLocationMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.b2));
                 userLocationMarker.setRotation(90F);
@@ -333,7 +340,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 //            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,17));
         }
-        Utility.PrintLog("Rotation", location.getBearing() + "");
+        PrintLog("Rotation", location.getBearing() + "");
         addPolyline();
     }
 
@@ -376,7 +383,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Task<Location> locationTask = fusedLocationProviderClient.getLastLocation();
         locationTask.addOnSuccessListener(location -> {
             if (location == null) {
-                Utility.PrintLog("Location is Null", "");
+                PrintLog("Location is Null", "");
                 zoomToUserLocation();
             } else {
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -385,7 +392,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
             }
         }).addOnFailureListener(e -> {
-            Utility.PrintLog("Error in zoomToUserLocation", e.getMessage());
+            PrintLog("Error in zoomToUserLocation", e.getMessage());
         });
     }
 
@@ -411,7 +418,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1000) {
             if (resultCode == RESULT_OK) {
-                Utility.PrintLog("GPS", "is on");
+                PrintLog("GPS", "is on");
                 checkSettingAndStartLocationUpdate();
             } else {
                 Toast.makeText(MapsActivity.this, "Plase On Gps", Toast.LENGTH_LONG).show();

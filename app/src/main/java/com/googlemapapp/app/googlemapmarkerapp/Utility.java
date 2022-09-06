@@ -18,6 +18,7 @@ public class Utility {
                 Log.e(key, "NULL VALUE");
             }
     }
+
     public static List<LatLng> decodePoly(String encoded) {
         List<LatLng> poly = new ArrayList<>();
         int index = 0, len = encoded.length();
@@ -53,6 +54,23 @@ public class Utility {
         return poly;
     }
 
+    public static LatLng getNewLatLng(LatLng latLng) {
+
+        LatLng newLatLng;
+
+        if (latLng != null) {
+            int precision = (int) Math.pow(10, 5);
+            double new_Latitude = (double) ((int) (precision * latLng.latitude)) / precision;
+            double new_Longitude = (double) ((int) (precision * latLng.longitude)) / precision;
+            newLatLng = new LatLng(new_Latitude, new_Longitude);
+            return newLatLng;
+
+        } else {
+            PrintLog("LanLng is ", "Null");
+            return null;
+        }
+
+    }
 
 
 }
